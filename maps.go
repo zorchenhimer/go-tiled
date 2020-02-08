@@ -9,7 +9,7 @@ import (
 
 type MapXml struct {
 	XMLName    string       `xml:"map"`
-	Boards     []XmlLayer   `xml:"layer"`
+	Layers     []XmlLayer   `xml:"layer"`
 	Tilesets   []XmlTileset `xml:"tileset"`
 	SourceFile string       `xml:"-"`
 }
@@ -31,7 +31,7 @@ type XmlLayer struct {
 func (m MapXml) String() string {
 	//return fmt.Sprintf("BGLayer: %s\nBoards: %s", m.BgLayer.String(), m.Boards.String())
 	layers := []string{}
-	for _, l := range m.Boards {
+	for _, l := range m.Layers {
 		layers = append(layers, l.String())
 	}
 	return fmt.Sprintf("File: %q\n%s", m.SourceFile, strings.Join(layers, "\n"))
