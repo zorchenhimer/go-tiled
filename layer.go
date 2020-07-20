@@ -12,11 +12,11 @@ import (
 )
 
 type Layer struct {
-	Id int
-	Name string
-	Width uint
-	Height uint
-	Data []uint32 // use a tile struct?
+	Id         int
+	Name       string
+	Width      uint
+	Height     uint
+	Data       []uint32 // use a tile struct?
 	Properties CustomProperties
 }
 
@@ -31,8 +31,8 @@ type xmlLayer struct {
 
 type xmlLayerData struct {
 	//XMLName    string       `xml:"data"`
-	Data []byte `xml:",innerxml"`
-	Encoding string `xml:"encoding,attr"`
+	Data        []byte `xml:",innerxml"`
+	Encoding    string `xml:"encoding,attr"`
 	Compression string `xml:"compression,attr"`
 }
 
@@ -42,10 +42,10 @@ func (a Layer) Merge(b Layer) (Layer, error) {
 	}
 
 	n := Layer{
-		Name: fmt.Sprintf("%s + %s", a, b),
-		Width: a.Width,
-		Height: a.Height,
-		Data: make([]uint32, len(a.Data)),
+		Name:       fmt.Sprintf("%s + %s", a, b),
+		Width:      a.Width,
+		Height:     a.Height,
+		Data:       make([]uint32, len(a.Data)),
 		Properties: CustomProperties{}, // merge this too?
 	}
 
@@ -109,12 +109,12 @@ func decodeLayerData(encoding, compression string, data []byte) ([]uint32, error
 			return nil, fmt.Errorf("Error decoding base64 data: %v", err)
 		}
 
-		if len(byteData) % 4 != 0 {
+		if len(byteData)%4 != 0 {
 			return nil, fmt.Errorf("Invalid base64 data length: %d", len(byteData))
 		}
 
-		for i := 0; i < len(byteData); i+= 4 {
-			duint := uint32(byteData[i+0]) | uint32(byteData[i+1]) << 8 | uint32(byteData[i+2]) << 16 | uint32(byteData[i+3]) << 24
+		for i := 0; i < len(byteData); i += 4 {
+			duint := uint32(byteData[i+0]) | uint32(byteData[i+1])<<8 | uint32(byteData[i+2])<<16 | uint32(byteData[i+3])<<24
 			d = append(d, duint)
 		}
 	default:
@@ -138,11 +138,11 @@ func decodeLayers(input []xmlLayer) ([]Layer, error) {
 		}
 
 		layer := Layer{
-			Id: l.Id,
-			Name: l.Name,
-			Data: data,
-			Width: uint(l.Width),
-			Height: uint(l.Height),
+			Id:         l.Id,
+			Name:       l.Name,
+			Data:       data,
+			Width:      uint(l.Width),
+			Height:     uint(l.Height),
 			Properties: cp,
 		}
 
@@ -151,4 +151,3 @@ func decodeLayers(input []xmlLayer) ([]Layer, error) {
 
 	return lst, nil
 }
-

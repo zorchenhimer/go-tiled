@@ -52,24 +52,24 @@ const (
 type MapProperties struct {
 	Orientation Orientation
 
-	Width uint
+	Width  uint
 	Height uint
 
-	TileWidth uint
+	TileWidth  uint
 	TileHeight uint
 
-	Infinite bool
+	Infinite       bool
 	TileSideLength int
 
-	StaggerAxis StaggerAxis
+	StaggerAxis  StaggerAxis
 	StaggerIndex StaggerIndex
 
 	TileLayerFormat LayerFormat
 
-	OutputChunkWidth uint
+	OutputChunkWidth  uint
 	OutputChunkHeight uint
 
-	TileRenderOrder RenderOrder
+	TileRenderOrder  RenderOrder
 	CompressionLevel uint
 
 	BackgroundColor color.RGBA
@@ -78,11 +78,11 @@ type MapProperties struct {
 type PropertyType string
 
 const (
-	TypeBool PropertyType = "bool"
-	TypeColor PropertyType = "color"
-	TypeFloat PropertyType = "float"
-	TypeFile PropertyType = "file"
-	TypeInt PropertyType = "int"
+	TypeBool   PropertyType = "bool"
+	TypeColor  PropertyType = "color"
+	TypeFloat  PropertyType = "float"
+	TypeFile   PropertyType = "file"
+	TypeInt    PropertyType = "int"
 	TypeString PropertyType = "string"
 )
 
@@ -95,13 +95,43 @@ type CustomProperty struct {
 
 func (cp CustomProperty) ValueBool() (bool, error) {
 	if cp.Type != TypeBool {
-		return false, fmt.Errorf("Property %q is type %s, not bool",  cp.Name, cp.Type)
+		return false, fmt.Errorf("Property %q is type %s, not bool", cp.Name, cp.Type)
 	}
 
 	return cp.value.(bool), nil
 }
 
-type CustomProperties []CustomProperty
+type CustomProperties map[string]CustomProperty
+
+func (cp CustomProperties) GetBoolProperty(key string, fallback bool) bool {
+	m := map[string]CustomProperty(cp)
+	if prop, ok := m[key]; ok {
+		if prop.Type == TypeBool {
+			return prop.value.(bool)
+		}
+	}
+	return fallback
+}
+
+func (cp CustomProperties) GetIntProperty(key string, fallback int) int {
+	m := map[string]CustomProperty(cp)
+	if prop, ok := m[key]; ok {
+		if prop.Type == TypeInt {
+			return prop.value.(int)
+		}
+	}
+	return fallback
+}
+
+func (cp CustomProperties) GetStringProperty(key string, fallback string) string {
+	m := map[string]CustomProperty(cp)
+	if prop, ok := m[key]; ok {
+		if prop.Type == TypeString {
+			return prop.value.(string)
+		}
+	}
+	return fallback
+}
 
 type xmlPropertyList []xmlProperty
 
@@ -134,7 +164,7 @@ func (pl xmlPropertyList) GetProperty(name string) string {
 }
 
 func (pl xmlPropertyList) CustomProps() (CustomProperties, error) {
-	cp := CustomProperties{}
+	cp := map[string]CustomProperty{}
 	for _, p := range pl {
 		prop := CustomProperty{
 			Name: p.Name,
@@ -166,10 +196,16 @@ func (pl xmlPropertyList) CustomProps() (CustomProperties, error) {
 			prop.value = int(i64)
 			break
 		default:
-			return nil, fmt.Errorf("Property type %s not implemented yet", prop.Type)
+			// Default to string instead of breaking.  Doesn't look like
+			// the type attribute is written from Tiled if the type is
+			// string.
+			//return nil, fmt.Errorf("Property type %s not implemented yet", prop.Type)
+			prop.value = p.Value
+			prop.Type = TypeString
 		}
 
-		cp = append(cp, prop)
+		//cp = append(cp, prop)
+		cp[p.Name] = prop
 	}
 
 	return cp, nil

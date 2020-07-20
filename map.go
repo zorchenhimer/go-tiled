@@ -7,12 +7,12 @@ import (
 )
 
 type Map struct {
-	Properties MapProperties
+	Properties       MapProperties
 	CustomProperties CustomProperties
-	Tilesets []Tileset
-	Layers []Layer
+	Tilesets         []Tileset
+	Layers           []Layer
 
-	version string
+	version      string
 	tiledVersion string
 }
 
@@ -27,11 +27,16 @@ func (m Map) TiledVersion() string {
 type xmlMap struct {
 	XMLName    string       `xml:"map"`
 	Layers     []xmlLayer   `xml:"layer"`
-	Tilesets   []xmlTileset `xml:"tileset"`
+	Tilesets   []xmlMapTileset `xml:"tileset"`
 	SourceFile string       `xml:"-"`
 
-	Version string `xml:"version,attr"`
+	Version      string `xml:"version,attr"`
 	TiledVersion string `xml:"tiledversion,attr"`
+}
+
+type xmlMapTileset struct {
+	FirstGid uint `xml:"firstgid,attr"`
+	Source   string `xml:"source,attr"`
 }
 
 func LoadMap(filename string) (*Map, error) {
@@ -56,9 +61,21 @@ func LoadMapRaw(rawXml []byte) (*Map, error) {
 	}
 
 	m := &Map{
-		version: md.Version,
+		version:      md.Version,
 		tiledVersion: md.TiledVersion,
-		Layers: layers,
+		Layers:       layers,
+		Tilesets:     []Tileset{},
+	}
+
+	//fmt.Printf("map tilesets: %v\n", md.Tilesets)
+
+	for _, mts := range md.Tilesets {
+		ts, err := LoadTileset(mts.Source)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to load map tileset %q: %v", mts.Source, err)
+		}
+		ts.FirstGid = mts.FirstGid
+		m.Tilesets = append(m.Tilesets, *ts)
 	}
 
 	return m, nil
@@ -82,4 +99,3 @@ func (m Map) GetLayer(id int) (Layer, error) {
 	}
 	return Layer{}, fmt.Errorf("No such layer")
 }
-
