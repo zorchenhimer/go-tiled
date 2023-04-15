@@ -34,7 +34,7 @@ type xmlTileset struct {
 	Name         string `xml:"name,attr"`
 	TileWidth    uint   `xml:"tilewidth,attr"`
 	TileHeight   uint   `xml:"tileheight,attr"`
-	TileCount    uint   `xml"tilecount,attr"`
+	TileCount    uint   `xml:"tilecount,attr"`
 	Columns      uint   `xml:"columns:attr"`
 
 	Grid  *xmlTsGrid
