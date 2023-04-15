@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 )
