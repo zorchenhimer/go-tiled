@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Map struct {
@@ -45,10 +46,12 @@ func LoadMap(filename string) (*Map, error) {
 		return nil, fmt.Errorf("Error reading XML file: %v", err)
 	}
 
-	return LoadMapRaw(rawXml)
+	dir := filepath.Dir(filename)
+
+	return LoadMapRaw(rawXml, dir)
 }
 
-func LoadMapRaw(rawXml []byte) (*Map, error) {
+func LoadMapRaw(rawXml []byte, directory string) (*Map, error) {
 	var md xmlMap
 	err := xml.Unmarshal(rawXml, &md)
 	if err != nil {
@@ -70,7 +73,7 @@ func LoadMapRaw(rawXml []byte) (*Map, error) {
 	//fmt.Printf("map tilesets: %v\n", md.Tilesets)
 
 	for _, mts := range md.Tilesets {
-		ts, err := LoadTileset(mts.Source)
+		ts, err := LoadTileset(filepath.Join(directory, mts.Source))
 		if err != nil {
 			return nil, fmt.Errorf("Unable to load map tileset %q: %v", mts.Source, err)
 		}
