@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -104,7 +104,7 @@ func decodeLayerData(encoding, compression string, data []byte) ([]uint32, error
 	case "base64":
 		buf := bytes.NewBuffer(uncompressed)
 		dec := base64.NewDecoder(base64.StdEncoding, buf)
-		byteData, err := ioutil.ReadAll(dec)
+		byteData, err := io.ReadAll(dec)
 		if err != nil {
 			return nil, fmt.Errorf("Error decoding base64 data: %v", err)
 		}

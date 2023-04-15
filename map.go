@@ -3,7 +3,7 @@ package tiled
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 type Map struct {
@@ -40,7 +40,7 @@ type xmlMapTileset struct {
 }
 
 func LoadMap(filename string) (*Map, error) {
-	rawXml, err := ioutil.ReadFile(filename)
+	rawXml, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading XML file: %v", err)
 	}
