@@ -31,6 +31,16 @@ type xmlMap struct {
 	Tilesets   []xmlMapTileset `xml:"tileset"`
 	SourceFile string       `xml:"-"`
 
+	Width int `xml:"width,attr"`
+	Height int `xml:"height,attr"`
+
+	TileWidth int `xml:"tilewidth,attr"`
+	TileHeight int `xml:"tileheight,attr"`
+
+	Infinite int `xml:"infinite,attr"`
+	Orientation string `xml:"orientation,attr"`
+	RenderOrder string `xml:"renderorder,attr"`
+
 	Version      string `xml:"version,attr"`
 	TiledVersion string `xml:"tiledversion,attr"`
 }
@@ -63,11 +73,31 @@ func LoadMapRaw(rawXml []byte, directory string) (*Map, error) {
 		return nil, err
 	}
 
+	renderorder, err := ParseRenderOrder(md.RenderOrder)
+	if err != nil {
+		return nil, err
+	}
+
+	orientation, err := ParseOrientation(md.Orientation)
+	if err != nil {
+		return nil, err
+	}
+
 	m := &Map{
 		version:      md.Version,
 		tiledVersion: md.TiledVersion,
 		Layers:       layers,
 		Tilesets:     []Tileset{},
+
+		Properties: MapProperties{
+			Width:       md.Width,
+			Height:      md.Height,
+			TileWidth:   md.TileWidth,
+			TileHeight:  md.TileHeight,
+			Infinite:    md.Infinite == 1,
+			Orientation: orientation,
+			TileRenderOrder: renderorder,
+		},
 	}
 
 	//fmt.Printf("map tilesets: %v\n", md.Tilesets)

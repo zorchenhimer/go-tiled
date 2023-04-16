@@ -16,6 +16,21 @@ const (
 	Orient_HexagonalStaggered
 )
 
+func ParseOrientation(value string) (Orientation, error) {
+	switch value {
+	case "orthogonal":
+		return Orient_Orthogonal, nil
+	case "isometric":
+		return Orient_Isometric, nil
+	case "isometricstaggered":
+		return Orient_IsometricStaggered, nil
+	case "hexagonalstaggered":
+		return Orient_HexagonalStaggered, nil
+	}
+
+	return 0, fmt.Errorf("Unknown orientation: %s", value)
+}
+
 type StaggerAxis int
 
 const (
@@ -49,14 +64,29 @@ const (
 	LeftUp
 )
 
+func ParseRenderOrder(value string) (RenderOrder, error) {
+	switch value {
+	case "right-down":
+		return RightDown, nil
+	case "right-up":
+		return RightUp, nil
+	case "left-down":
+		return LeftDown, nil
+	case "left-up":
+		return LeftUp, nil
+	}
+
+	return 0, fmt.Errorf("Unknown render order: %s", value)
+}
+
 type MapProperties struct {
 	Orientation Orientation
 
-	Width  uint
-	Height uint
+	Width  int
+	Height int
 
-	TileWidth  uint
-	TileHeight uint
+	TileWidth  int
+	TileHeight int
 
 	Infinite       bool
 	TileSideLength int
@@ -66,11 +96,11 @@ type MapProperties struct {
 
 	TileLayerFormat LayerFormat
 
-	OutputChunkWidth  uint
-	OutputChunkHeight uint
+	OutputChunkWidth  int
+	OutputChunkHeight int
 
 	TileRenderOrder  RenderOrder
-	CompressionLevel uint
+	CompressionLevel int
 
 	BackgroundColor color.RGBA
 }

@@ -11,19 +11,29 @@ import (
 )
 
 type Layer struct {
-	Id         int
-	Name       string
-	Width      uint
-	Height     uint
+	Id      int
+	Name    string
+	Width   uint
+	Height  uint
+	OffsetX float64
+	OffsetY float64
+	Opacity int // 0-100
+	Locked  bool
+
 	Data       []uint32 // use a tile struct?
 	Properties CustomProperties
 }
 
 type xmlLayer struct {
-	Id         int             `xml:"id,attr"`
-	Name       string          `xml:"name,attr"`
-	Width      int             `xml:"width,attr"`
-	Height     int             `xml:"height,attr"`
+	Id         int     `xml:"id,attr"`
+	Name       string  `xml:"name,attr"`
+	Width      int     `xml:"width,attr"`
+	Height     int     `xml:"height,attr"`
+	OffsetX    float64 `xml:"offsetx,attr"`
+	OffsetY    float64 `xml:"offsety,attr"`
+	Opacity    float64 `xml:"opacity,attr"`
+	Locked     bool    `xml:"locked,attr"`
+
 	Data       xmlLayerData    `xml:"data"`
 	Properties xmlPropertyList `xml:"properties>property"`
 }
@@ -137,11 +147,16 @@ func decodeLayers(input []xmlLayer) ([]Layer, error) {
 		}
 
 		layer := Layer{
-			Id:         l.Id,
-			Name:       l.Name,
-			Data:       data,
-			Width:      uint(l.Width),
-			Height:     uint(l.Height),
+			Id:      l.Id,
+			Name:    l.Name,
+			Width:   uint(l.Width),
+			Height:  uint(l.Height),
+			OffsetX: l.OffsetX,
+			OffsetY: l.OffsetY,
+			Opacity: int(l.Opacity*100),
+			Locked:  l.Locked,
+			Data:    data,
+
 			Properties: cp,
 		}
 
